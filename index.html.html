@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sampoorn Finance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#12233D;
+    --navy-2:#1B3A5C;
+    --gold:#C89B3C;
+    --gold-light:#E9C876;
+    --bg:#F4F5F8;
+    --surface:#FFFFFF;
+    --line:#E3E6ED;
+    --text:#1B2430;
+    --text-dim:#6B7382;
+    --green:#2F8F5B;
+    --red:#C0392B;
+    --amber:#B8791E;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);}
+  h1,h2,h3,.brand{font-family:'Outfit',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select{font-family:inherit;}
+
+  /* ---------- Login ---------- */
+  #loginScreen{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(200,155,60,0.18), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(27,58,92,0.35), transparent 45%),
+      var(--navy);
+  }
+  .login-card{
+    width:380px;max-width:90vw;background:var(--surface);border-radius:16px;
+    padding:36px 32px;box-shadow:0 30px 60px rgba(0,0,0,0.35);
+  }
+  .login-mark{
+    width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--amber));
+    display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:800;font-size:22px;
+    margin-bottom:18px;font-family:'Outfit',sans-serif;
+  }
+  .login-card h1{font-size:22px;margin:0 0 2px;color:var(--navy);}
+  .login-card .sub{color:var(--text-dim);font-size:13px;margin-bottom:24px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--text-dim);margin-bottom:6px;}
+  .field input, .field select{
+    width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;background:#FBFBFD;
+  }
+  .field input:focus, .field select:focus{outline:none;border-color:var(--gold);background:#fff;}
+  .btn-primary{
+    width:100%;padding:11px;border:none;border-radius:8px;background:var(--navy);color:#fff;
+    font-weight:700;font-size:14.5px;margin-top:6px;transition:background .15s;
+  }
+  .btn-primary:hover{background:var(--navy-2);}
+  .btn-gold{background:var(--gold);color:var(--navy);}
+  .btn-gold:hover{background:var(--gold-light);}
+  .login-error{color:var(--red);font-size:12.5px;margin-top:10px;min-height:14px;}
+  .login-toggle{text-align:center;margin-top:16px;font-size:12.5px;color:var(--text-dim);}
+  .login-toggle a{color:var(--navy-2);font-weight:600;cursor:pointer;text-decoration:none;}
+
+  /* ---------- App shell ---------- */
+  #appScreen{display:none;min-height:100vh;}
+  .shell{display:flex;min-height:100vh;}
+  .sidebar{
+    width:222px;background:var(--navy);color:#DCE3EE;flex-shrink:0;
+    display:flex;flex-direction:column;padding:20px 0;
+  }
+  .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:14px;}
+  .sidebar .brand .mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--amber));display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:800;font-size:15px;}
+  .sidebar .brand .txt{font-weight:700;font-size:15px;color:#fff;line-height:1.15;}
+  .sidebar .brand .txt span{display:block;font-size:10.5px;font-weight:500;color:var(--gold-light);letter-spacing:.5px;}
+  .nav-item{
+    padding:11px 20px;font-size:13.5px;font-weight:500;color:#B7C0D1;cursor:pointer;
+    border-left:3px solid transparent;display:flex;align-items:center;gap:10px;
+  }
+  .nav-item:hover{background:rgba(255,255,255,0.05);color:#fff;}
+  .nav-item.active{background:rgba(200,155,60,0.14);border-left-color:var(--gold);color:#fff;}
+  .nav-section-label{padding:14px 20px 6px;font-size:10.5px;letter-spacing:.8px;color:#6E7A90;font-weight:700;text-transform:uppercase;}
+  .sidebar-footer{margin-top:auto;padding:14px 20px 0;border-top:1px solid rgba(255,255,255,0.08);}
+  .who{font-size:12.5px;color:#fff;font-weight:600;}
+  .who-role{font-size:11px;color:var(--gold-light);margin-bottom:8px;}
+  .logout-btn{width:100%;padding:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:#DCE3EE;border-radius:7px;font-size:12.5px;}
+  .logout-btn:hover{background:rgba(255,255,255,0.08);}
+
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{
+    height:60px;background:var(--surface);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;padding:0 26px;flex-shrink:0;
+  }
+  .topbar h2{font-size:17px;margin:0;color:var(--navy);}
+  .topbar .crumb{font-size:12px;color:var(--text-dim);}
+  .content{padding:26px;overflow-y:auto;flex:1;}
+
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
+  .stat-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;}
+  .stat-card .label{font-size:11.5px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+  .stat-card .val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--navy);margin-top:6px;}
+  .stat-card.accent .val{color:var(--amber);}
+
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:20px;}
+  .panel-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:between;justify-content:space-between;}
+  .panel-head h3{margin:0;font-size:15px;color:var(--navy);}
+  .panel-body{padding:20px;}
+
+  .btn-sm{padding:8px 14px;border:none;border-radius:7px;font-size:12.5px;font-weight:700;background:var(--navy);color:#fff;}
+  .btn-sm:hover{background:var(--navy-2);}
+  .btn-sm.gold{background:var(--gold);color:var(--navy);}
+  .btn-outline{padding:7px 12px;border:1.5px solid var(--line);border-radius:7px;font-size:12px;font-weight:600;background:#fff;color:var(--text);}
+  .btn-outline:hover{border-color:var(--navy);}
+  .btn-danger-outline{padding:6px 10px;border:1.5px solid #F0D1CC;border-radius:7px;font-size:11.5px;font-weight:600;background:#FDF3F1;color:var(--red);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;padding:9px 10px;background:#F7F8FA;color:var(--text-dim);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--line);}
+  td{padding:10px;border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .empty-row td{text-align:center;color:var(--text-dim);padding:26px;font-size:13px;}
+
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .form-grid .full{grid-column:1/-1;}
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge.head{background:#E9E1FA;color:#5B3AA6;}
+  .badge.area{background:#DDEFE4;color:var(--green);}
+  .badge.branch{background:#FCE9D4;color:var(--amber);}
+  .toast{
+    position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:12px 18px;border-radius:8px;
+    font-size:13px;box-shadow:0 10px 26px rgba(0,0,0,0.25);z-index:999;display:none;
+  }
+  .toast.err{background:var(--red);}
+  .modal-bg{
+    display:none;position:fixed;inset:0;background:rgba(18,35,61,0.55);z-index:500;
+    align-items:center;justify-content:center;
+  }
+  .modal{background:#fff;border-radius:14px;width:460px;max-width:92vw;max-height:88vh;overflow-y:auto;padding:24px;}
+  .modal h3{margin:0 0 16px;color:var(--navy);}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+  .helper{font-size:11.5px;color:var(--text-dim);margin-top:4px;}
+  .setup-banner{background:#FDF3E3;border:1px solid #F0DDA8;color:var(--amber);border-radius:8px;padding:10px 14px;font-size:12.5px;margin-bottom:16px;}
+  ::-webkit-scrollbar{width:9px;height:9px;}
+  ::-webkit-scrollbar-thumb{background:#CBD2DE;border-radius:10px;}
+  @media (max-width:800px){
+    .sidebar{position:fixed;left:-222px;top:0;bottom:0;z-index:400;transition:left .2s;}
+    .sidebar.open{left:0;}
+    .form-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-mark">SF</div>
+    <h1>Sampoorn Finance</h1>
+    <div class="sub" id="loginSub">Apne office ke account se login karein</div>
+
+    <div id="loginBox">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="you@sampoorn.in">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" onclick="doLogin()">Login</button>
+      <div class="login-error" id="loginError"></div>
+    </div>
+
+    <div class="login-toggle">
+      Pehli baar setup kar rahe hain? <a onclick="toggleSetup()">Head Office Admin banayein</a>
+    </div>
+
+    <div id="setupBox" style="display:none;margin-top:16px;border-top:1px solid var(--line);padding-top:16px;">
+      <div class="setup-banner">Ye option sirf tab kaam karega jab system me abhi tak koi Head Office admin na ho.</div>
+      <div class="field"><label>Aapka Naam</label><input id="setupName" placeholder="Naam"></div>
+      <div class="field"><label>Email</label><input id="setupEmail" placeholder="admin@sampoorn.in"></div>
+      <div class="field"><label>Password</label><input type="password" id="setupPassword" placeholder="Kam se kam 6 characters"></div>
+      <button class="btn-primary btn-gold" onclick="doFirstAdminSetup()">Head Office Admin Banayein</button>
+      <div class="login-error" id="setupError"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="appScreen">
+  <div class="shell">
+    <div class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="mark">SF</div>
+        <div class="txt">Sampoorn Finance<span id="roleTag">Head Office</span></div>
+      </div>
+      <div id="navItems"></div>
+      <div class="sidebar-footer">
+        <div class="who" id="whoName">—</div>
+        <div class="who-role" id="whoRole">—</div>
+        <button class="logout-btn" onclick="doLogout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="topbar">
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="crumb" id="pageCrumb"></div>
+      </div>
+      <div class="content" id="content"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ MODALS ============ -->
+<div class="modal-bg" id="modalBg"><div class="modal" id="modalBody"></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* =========================================================================
+   SAMPOORN FINANCE — Phase 1
+   Login/Role system + Head Office (Area Office, Branch, Staff)
+   + Branch (Group, Customer)
+   Backend: Firebase Auth + Firestore (Spark/free plan)
+
+   SETUP STEPS (do this before using):
+   1. Go to https://console.firebase.google.com -> Create Project (free Spark plan is fine)
+   2. Build > Authentication > Get Started > Sign-in method > enable "Email/Password"
+   3. Build > Firestore Database > Create database (start in production mode)
+   4. Project settings (gear icon) > General > "Your apps" > Add app > Web (</>) 
+      -> copy the firebaseConfig object and paste it below, replacing the placeholder.
+   5. Firestore > Rules tab, paste the rules from FIRESTORE_RULES.txt (provided alongside
+      this file) and Publish.
+   6. Open this index.html in a browser (or host it on GitHub Pages), click
+      "Head Office Admin banayein" and create your first admin account.
+   ========================================================================= */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAsjMZVP9XmatbLM-kImw7VtH1afaiTyhM",
+  authDomain: "sampoorn-finance.firebaseapp.com",
+  projectId: "sampoorn-finance",
+  storageBucket: "sampoorn-finance.firebasestorage.app",
+  messagingSenderId: "40359742516",
+  appId: "1:40359742516:web:92dae742167ba2c5fece61"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// secondary app instance used ONLY to create new staff/admin accounts
+// without logging the currently signed-in admin out of their session
+const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
+const secondaryAuth = secondaryApp.auth();
+
+let CURRENT_USER = null;   // { uid, name, email, role, areaId, branchId }
+let CURRENT_TAB = null;
+
+// ---------------- Loan configuration (adjust these to your business rules) ----------------
+const LOAN_INTEREST_PCT = 10;     // flat interest % added to principal
+const LOAN_TENURE_WEEKS = 50;     // number of weekly EMIs
+const LOAN_FILE_CHARGE_PCT = 1;   // file charge % of loan amount
+
+function computeLoanTerms(loanAmt){
+  const interest = Math.round(loanAmt * LOAN_INTEREST_PCT / 100);
+  const totalPayable = loanAmt + interest;
+  const emiAmt = Math.ceil(totalPayable / LOAN_TENURE_WEEKS);
+  const fileCharge = Math.round(loanAmt * LOAN_FILE_CHARGE_PCT / 100);
+  return { interest, totalPayable, emiAmt, fileCharge, tenureWeeks: LOAN_TENURE_WEEKS };
+}
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function monthStartStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-01';
+}
+function todayDayName(){
+  const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  return names[new Date().getDay()];
+}
+function fmtAmt(n){ return (n||0).toLocaleString('en-IN'); }
+
+// ---------------- helpers ----------------
+function toast(msg, isErr){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isErr ? ' err' : '');
+  t.style.display = 'block';
+  setTimeout(()=> t.style.display='none', 3200);
+}
+function openModal(html){
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalBg').style.display = 'flex';
+}
+function closeModal(){ document.getElementById('modalBg').style.display = 'none'; }
+function esc(s){ return (s===undefined||s===null) ? '' : String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function genId(){ return db.collection('_').doc().id; }
+
+// ---------------- toggle setup box ----------------
+function toggleSetup(){
+  const s = document.getElementById('setupBox');
+  s.style.display = s.style.display === 'none' ? 'block' : 'none';
+}
+
+// ---------------- FIRST ADMIN SETUP ----------------
+async function doFirstAdminSetup(){
+  const name = document.getElementById('setupName').value.trim();
+  const email = document.getElementById('setupEmail').value.trim();
+  const pass = document.getElementById('setupPassword').value;
+  const errBox = document.getElementById('setupError');
+  errBox.textContent = '';
+  if(!name || !email || !pass){ errBox.textContent = 'Sabhi fields bharein'; return; }
+  try{
+    const setupSnap = await db.collection('system').doc('setup').get();
+    if(setupSnap.exists && setupSnap.data().headOfficeCreated){
+      errBox.textContent = 'Head Office admin pehle se ban chuka hai. Kripya login karein.';
+      return;
+    }
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    await db.collection('users').doc(cred.user.uid).set({
+      name, email, role:'headoffice', areaId:null, branchId:null, createdAt: Date.now()
+    });
+    await db.collection('system').doc('setup').set({ headOfficeCreated: true });
+    toast('Head Office admin ban gaya! Ab login karein.');
+    await auth.signOut();
+    toggleSetup();
+  }catch(e){
+    errBox.textContent = e.message;
+  }
+}
+
+// ---------------- LOGIN ----------------
+async function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  const errBox = document.getElementById('loginError');
+  errBox.textContent = '';
+  if(!email || !pass){ errBox.textContent = 'Email aur password dalein'; return; }
+  try{
+    await auth.signInWithEmailAndPassword(email, pass);
+  }catch(e){
+    errBox.textContent = 'Login fail: ' + e.message;
+  }
+}
+function doLogout(){ auth.signOut(); }
+
+auth.onAuthStateChanged(async (user)=>{
+  if(!user){
+    CURRENT_USER = null;
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('appScreen').style.display = 'none';
+    return;
+  }
+  const snap = await db.collection('users').doc(user.uid).get();
+  if(!snap.exists){
+    toast('User profile Firestore me nahi mila. Admin se sampark karein.', true);
+    auth.signOut();
+    return;
+  }
+  CURRENT_USER = Object.assign({uid:user.uid}, snap.data());
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  buildSidebar();
+  const firstTab = CURRENT_USER.role === 'headoffice' ? 'ho-dashboard'
+                 : CURRENT_USER.role === 'area' ? 'area-dashboard'
+                 : 'branch-dashboard';
+  showTab(firstTab);
+});
+
+// ---------------- SIDEBAR ----------------
+function buildSidebar(){
+  document.getElementById('whoName').textContent = CURRENT_USER.name;
+  const roleLabels = {headoffice:'Head Office Admin', area:'Area Head', branch:'Branch Staff'};
+  document.getElementById('whoRole').textContent = roleLabels[CURRENT_USER.role];
+  document.getElementById('roleTag').textContent = roleLabels[CURRENT_USER.role];
+
+  let items = '';
+  if(CURRENT_USER.role === 'headoffice'){
+    items += navItem('ho-dashboard','Dashboard');
+    items += sectionLabel('Setup');
+    items += navItem('ho-area','Area Office');
+    items += navItem('ho-branch','Branch');
+    items += navItem('ho-staff','Staff Management');
+  } else if(CURRENT_USER.role === 'area'){
+    items += navItem('area-dashboard','Dashboard');
+    items += sectionLabel('Aapka Area');
+    items += navItem('area-branches','Linked Branches');
+  } else {
+    items += navItem('branch-dashboard','Dashboard');
+    items += sectionLabel('Kaam');
+    items += navItem('branch-group','Group');
+    items += navItem('branch-customer','Customer');
+    items += navItem('branch-collection','Collection');
+    items += navItem('branch-loan','Loan');
+    items += sectionLabel('Aage Jald Hi');
+    items += navItem('branch-soon-txn','Transaction');
+    items += navItem('branch-soon-eod','E.O.D');
+    items += navItem('branch-soon-reports','Reports');
+  }
+  document.getElementById('navItems').innerHTML = items;
+}
+function navItem(id,label){
+  return `<div class="nav-item" id="nav-${id}" onclick="showTab('${id}')">${label}</div>`;
+}
+function sectionLabel(t){ return `<div class="nav-section-label">${t}</div>`; }
+
+function setActiveNav(id){
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const el = document.getElementById('nav-'+id);
+  if(el) el.classList.add('active');
+}
+
+// ---------------- ROUTER ----------------
+function showTab(id){
+  CURRENT_TAB = id;
+  setActiveNav(id);
+  const titles = {
+    'ho-dashboard':['Dashboard','Head Office'],
+    'ho-area':['Area Office','Head Office / Setup'],
+    'ho-branch':['Branch','Head Office / Setup'],
+    'ho-staff':['Staff Management','Head Office / Setup'],
+    'area-dashboard':['Dashboard','Area Office'],
+    'area-branches':['Linked Branches','Area Office'],
+    'branch-dashboard':['Dashboard','Branch'],
+    'branch-group':['Group','Branch'],
+    'branch-customer':['Customer','Branch'],
+    'branch-collection':['Collection','Branch'],
+    'branch-loan':['Loan','Branch'],
+    'branch-soon-txn':['Transaction','Phase 3 me aayega'],
+    'branch-soon-eod':['E.O.D','Phase 3 me aayega'],
+    'branch-soon-reports':['Reports','Phase 3 me aayega'],
+  };
+  document.getElementById('pageTitle').textContent = titles[id][0];
+  document.getElementById('pageCrumb').textContent = titles[id][1];
+
+  if(id === 'ho-dashboard') renderHoDashboard();
+  else if(id === 'ho-area') renderHoArea();
+  else if(id === 'ho-branch') renderHoBranch();
+  else if(id === 'ho-staff') renderHoStaff();
+  else if(id === 'area-dashboard') renderAreaDashboard();
+  else if(id === 'area-branches') renderAreaBranches();
+  else if(id === 'branch-dashboard') renderBranchDashboard();
+  else if(id === 'branch-group') renderBranchGroup();
+  else if(id === 'branch-customer') renderBranchCustomer();
+  else if(id === 'branch-collection') renderBranchCollection();
+  else if(id === 'branch-loan') renderBranchLoan();
+  else document.getElementById('content').innerHTML = `<div class="panel"><div class="panel-body">Ye section agle phase me banega.</div></div>`;
+}
+
+/* =========================================================================
+   HEAD OFFICE
+   ========================================================================= */
+async function renderHoDashboard(){
+  const [areaSnap, branchSnap, staffSnap] = await Promise.all([
+    db.collection('areaOffices').get(),
+    db.collection('branches').get(),
+    db.collection('users').where('role','in',['area','branch']).get()
+  ]);
+  document.getElementById('content').innerHTML = `
+    <div class="stat-row">
+      <div class="stat-card"><div class="label">Total Area Office</div><div class="val">${areaSnap.size}</div></div>
+      <div class="stat-card"><div class="label">Total Branch</div><div class="val">${branchSnap.size}</div></div>
+      <div class="stat-card accent"><div class="label">Total Staff</div><div class="val">${staffSnap.size}</div></div>
+    </div>
+    <div class="panel"><div class="panel-body">
+      Head Office se Area Office, Branch aur Staff manage karein. Left sidebar se "Setup" section kholein.
+      Borrower / Outstanding / Collection ke live stats Phase 2 (Loan &amp; Collection) ke baad yahan aayenge.
+    </div></div>
+  `;
+}
+
+// ---- Area Office CRUD ----
+async function renderHoArea(){
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h3>Area Office</h3><button class="btn-sm gold" onclick="openAreaForm()">+ Naya Area Office</button></div>
+      <div class="panel-body">
+        <table><thead><tr><th>Naam</th><th>Address</th><th>Branches Linked</th><th></th></tr></thead>
+        <tbody id="areaTableBody"><tr class="empty-row"><td colspan="4">Load ho raha hai...</td></tr></tbody></table>
+      </div>
+    </div>`;
+  const [areaSnap, branchSnap] = await Promise.all([
+    db.collection('areaOffices').orderBy('createdAt','desc').get(),
+    db.collection('branches').get()
+  ]);
+  if(areaSnap.empty){
+    document.getElementById('areaTableBody').innerHTML = `<tr class="empty-row"><td colspan="4">Abhi tak koi Area Office nahi bana.</td></tr>`;
+    return;
+  }
+  let rows = '';
+  areaSnap.forEach(doc=>{
+    const d = doc.data();
+    const linkedCount = branchSnap.docs.filter(b => b.data().areaId === doc.id).length;
+    rows += `<tr>
+      <td><strong>${esc(d.name)}</strong></td>
+      <td>${esc(d.address||'—')}</td>
+      <td>${linkedCount} branch</td>
+      <td><button class="btn-outline" onclick="openAreaForm('${doc.id}')">Edit</button></td>
+    </tr>`;
+  });
+  document.getElementById('areaTableBody').innerHTML = rows;
+}
+async function openAreaForm(id){
+  let d = {name:'',address:''};
+  if(id){ const s = await db.collection('areaOffices').doc(id).get(); d = s.data(); }
+  openModal(`
+    <h3>${id ? 'Area Office Edit Karein' : 'Naya Area Office'}</h3>
+    <div class="field"><label>Area Office ka Naam</label><input id="af_name" value="${esc(d.name)}"></div>
+    <div class="field"><label>Address</label><input id="af_address" value="${esc(d.address)}"></div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn-sm gold" onclick="saveArea('${id||''}')">Save</button>
+    </div>
+  `);
+}
+async function saveArea(id){
+  const name = document.getElementById('af_name').value.trim();
+  const address = document.getElementById('af_address').value.trim();
+  if(!name){ toast('Naam dalna zaroori hai', true); return; }
+  try{
+    if(id){
+      await db.collection('areaOffices').doc(id).update({name, address});
+    }else{
+      await db.collection('areaOffices').add({name, address, createdAt: Date.now()});
+    }
+    closeModal(); toast('Area Office save ho gaya'); renderHoArea();
+  }catch(e){ toast(e.message, true); }
+}
+
+// ---- Branch CRUD (+ link to area) ----
+async function renderHoBranch(){
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h3>Branch</h3><button class="btn-sm gold" onclick="openBranchForm()">+ Nayi Branch</button></div>
+      <div class="panel-body">
+        <table><thead><tr><th>Branch Naam</th><th>Address</th><th>Linked Area Office</th><th></th></tr></thead>
+        <tbody id="branchTableBody"><tr class="empty-row"><td colspan="4">Load ho raha hai...</td></tr></tbody></table>
+      </div>
+    </div>`;
+  const [branchSnap, areaSnap] = await Promise.all([
+    db.collection('branches').orderBy('createdAt','desc').get(),
+    db.collection('areaOffices').get()
+  ]);
+  const areaMap = {}; areaSnap.forEach(d=> areaMap[d.id] = d.data().name);
+  if(branchSnap.empty){
+    document.getElementById('branchTableBody').innerHTML = `<tr class="empty-row"><td colspan="4">Abhi tak koi Branch nahi bani.</td></tr>`;
+    return;
+  }
+  let rows = '';
+  branchSnap.forEach(doc=>{
+    const d = doc.data();
+    rows += `<tr>
+      <td><strong>${esc(d.name)}</strong></td>
+      <td>${esc(d.address||'—')}</td>
+      <td>${d.areaId ? esc(areaMap[d.areaId]||'—') : '<span class="text-dim">Link nahi hai</span>'}</td>
+      <td><button class="btn-outline" onclick="openBranchForm('${doc.id}')">Edit</button></td>
+    </tr>`;
+  });
+  document.getElementById('branchTableBody').innerHTML = rows;
+}
+async function openBranchForm(id){
+  let d = {name:'',address:'',areaId:''};
+  if(id){ const s = await db.collection('branches').doc(id).get(); d = s.data(); }
+  const areaSnap = await db.collection('areaOffices').get();
+  let options = '<option value="">— Area Office Select Karein —</option>';
+  areaSnap.forEach(doc=>{
+    options += `<option value="${doc.id}" ${d.areaId===doc.id?'selected':''}>${esc(doc.data().name)}</option>`;
+  });
+  openModal(`
+    <h3>${id ? 'Branch Edit Karein' : 'Nayi Branch'}</h3>
+    <div class="field"><label>Branch ka Naam</label><input id="bf_name" value="${esc(d.name)}"></div>
+    <div class="field"><label>Address</label><input id="bf_address" value="${esc(d.address)}"></div>
+    <div class="field"><label>Area Office se Link Karein</label><select id="bf_area">${options}</select></div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn-sm gold" onclick="saveBranch('${id||''}')">Save</button>
+    </div>
+  `);
+}
+async function saveBranch(id){
+  const name = document.getElementById('bf_name').value.trim();
+  const address = document.getElementById('bf_address').value.trim();
+  const areaId = document.getElementById('bf_area').value || null;
+  if(!name){ toast('Naam dalna zaroori hai', true); return; }
+  try{
+    if(id){
+      await db.collection('branches').doc(id).update({name, address, areaId});
+    }else{
+      await db.collection('branches').add({name, address, areaId, createdAt: Date.now()});
+    }
+    closeModal(); toast('Branch save ho gayi'); renderHoBranch();
+  }catch(e){ toast(e.message, true); }
+}
+
+// ---- Staff Management (create/link users, uses secondary auth app) ----
+async function renderHoStaff(){
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h3>Staff Management</h3><button class="btn-sm gold" onclick="openStaffForm()">+ Naya Staff</button></div>
+      <div class="panel-body">
+        <table><thead><tr><th>Naam</th><th>Email</th><th>Role</th><th>Linked</th></tr></thead>
+        <tbody id="staffTableBody"><tr class="empty-row"><td colspan="4">Load ho raha hai...</td></tr></tbody></table>
+      </div>
+    </div>`;
+  const [userSnap, areaSnap, branchSnap] = await Promise.all([
+    db.collection('users').where('role','in',['area','branch']).get(),
+    db.collection('areaOffices').get(),
+    db.collection('branches').get()
+  ]);
+  const areaMap = {}; areaSnap.forEach(d=> areaMap[d.id] = d.data().name);
+  const branchMap = {}; branchSnap.forEach(d=> branchMap[d.id] = d.data().name);
+  if(userSnap.empty){
+    document.getElementById('staffTableBody').innerHTML = `<tr class="empty-row"><td colspan="4">Abhi tak koi staff nahi bana.</td></tr>`;
+    return;
+  }
+  let rows = '';
+  userSnap.forEach(doc=>{
+    const d = doc.data();
+    const badge = d.role === 'area' ? '<span class="badge area">Area Head</span>' : '<span class="badge branch">Branch Staff</span>';
+    const linked = d.role === 'area' ? (areaMap[d.areaId]||'—') : (branchMap[d.branchId]||'—');
+    rows += `<tr><td>${esc(d.name)}</td><td>${esc(d.email)}</td><td>${badge}</td><td>${esc(linked)}</td></tr>`;
+  });
+  document.getElementById('staffTableBody').innerHTML = rows;
+}
+async function openStaffForm(){
+  const [areaSnap, branchSnap] = await Promise.all([
+    db.collection('areaOffices').get(),
+    db.collection('branches').get()
+  ]);
+  let areaOptions = '<option value="">— Select —</option>';
+  areaSnap.forEach(d=> areaOptions += `<option value="${d.id}">${esc(d.data().name)}</option>`);
+  let branchOptions = '<option value="">— Select —</option>';
+  branchSnap.forEach(d=> branchOptions += `<option value="${d.id}">${esc(d.data().name)}</option>`);
+
+  openModal(`
+    <h3>Naya Staff Banayein</h3>
+    <div class="field"><label>Naam</label><input id="sf_name"></div>
+    <div class="field"><label>Email</label><input id="sf_email"></div>
+    <div class="field"><label>Password (kam se kam 6 characters)</label><input type="password" id="sf_password"></div>
+    <div class="field">
+      <label>Role</label>
+      <select id="sf_role" onchange="staffRoleChanged()">
+        <option value="area">Area Head</option>
+        <option value="branch">Branch Staff</option>
+      </select>
+    </div>
+    <div class="field" id="sf_areaWrap"><label>Kaunsa Area Office</label><select id="sf_area">${areaOptions}</select></div>
+    <div class="field" id="sf_branchWrap" style="display:none;"><label>Kaunsi Branch</label><select id="sf_branch">${branchOptions}</select></div>
+    <div class="helper">Area Head sirf apne link kiye hue branches ka data dekh payega. Branch Staff sirf apni branch ka data dekh payega.</div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn-sm gold" onclick="saveStaff()">Banayein</button>
+    </div>
+  `);
+}
+function staffRoleChanged(){
+  const role = document.getElementById('sf_role').value;
+  document.getElementById('sf_areaWrap').style.display = role === 'area' ? 'block' : 'none';
+  document.getElementById('sf_branchWrap').style.display = role === 'branch' ? 'block' : 'none';
+}
+async function saveStaff(){
+  const name = document.getElementById('sf_name').value.trim();
+  const email = document.getElementById('sf_email').value.trim();
+  const password = document.getElementById('sf_password').value;
+  const role = document.getElementById('sf_role').value;
+  const areaId = role === 'area' ? (document.getElementById('sf_area').value || null) : null;
+  const branchId = role === 'branch' ? (document.getElementById('sf_branch').value || null) : null;
+
+  if(!name || !email || !password){ toast('Sabhi fields bharein', true); return; }
+  if(role === 'area' && !areaId){ toast('Area Office select karein', true); return; }
+  if(role === 'branch' && !branchId){ toast('Branch select karein', true); return; }
+
+  try{
+    // create via secondary app so the logged-in Head Office admin stays logged in
+    const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+    await db.collection('users').doc(cred.user.uid).set({
+      name, email, role, areaId, branchId, createdAt: Date.now()
+    });
+    await secondaryAuth.signOut();
+    closeModal(); toast('Staff account ban gaya'); renderHoStaff();
+  }catch(e){ toast(e.message, true); }
+}
+
+/* =========================================================================
+   AREA OFFICE (read-only Phase 1 view of linked branches)
+   ========================================================================= */
+async function renderAreaDashboard(){
+  const c = document.getElementById('content');
+  c.innerHTML = `<div class="panel"><div class="panel-body">Dashboard load ho raha hai...</div></div>`;
+
+  const branchSnap = await db.collection('branches').where('areaId','==', CURRENT_USER.areaId).get();
+  const branchIds = branchSnap.docs.map(d=>d.id);
+
+  if(branchIds.length === 0){
+    c.innerHTML = `
+      <div class="stat-row">
+        <div class="stat-card"><div class="label">Linked Branch</div><div class="val">0</div></div>
+      </div>
+      <div class="panel"><div class="panel-body">Abhi tak koi branch aapke area se link nahi hai.</div></div>`;
+    return;
+  }
+
+  // Firestore "in" queries support up to 30 values — fine for typical area sizes.
+  const [activeLoanSnap, todayCollSnap] = await Promise.all([
+    db.collection('loans').where('branchId','in', branchIds.slice(0,30)).where('status','==','active').get(),
+    db.collection('collections').where('branchId','in', branchIds.slice(0,30)).where('date','==', todayStr()).get()
+  ]);
+  let outstanding = 0;
+  activeLoanSnap.forEach(doc=> outstanding += (doc.data().outstanding || 0));
+  let todayCollection = 0;
+  todayCollSnap.forEach(doc=> todayCollection += (doc.data().putAmt || 0));
+
+  c.innerHTML = `
+    <div class="stat-row">
+      <div class="stat-card"><div class="label">Linked Branch</div><div class="val">${branchSnap.size}</div></div>
+      <div class="stat-card"><div class="label">Borrower</div><div class="val">${activeLoanSnap.size}</div></div>
+      <div class="stat-card"><div class="label">Outstanding</div><div class="val mono">₹${fmtAmt(outstanding)}</div></div>
+      <div class="stat-card accent"><div class="label">Today Collection</div><div class="val mono">₹${fmtAmt(todayCollection)}</div></div>
+    </div>
+    <div class="panel"><div class="panel-body">
+      Today Realizable / Overdue / Loan / Monthly Performance ke detailed branch-wise numbers
+      "Linked Branches" tab me aur Reports module (Phase 3) me milenge.
+    </div></div>
+  `;
+}
+async function renderAreaBranches(){
+  const c = document.getElementById('content');
+  const branchSnap = await db.collection('branches').where('areaId','==', CURRENT_USER.areaId).get();
+  let rows = '';
+  branchSnap.forEach(doc=>{
+    const d = doc.data();
+    rows += `<tr><td><strong>${esc(d.name)}</strong></td><td>${esc(d.address||'—')}</td></tr>`;
+  });
+  if(!rows) rows = `<tr class="empty-row"><td colspan="2">Abhi koi branch aapke area se link nahi hai.</td></tr>`;
+  c.innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h3>Aapki Linked Branches</h3></div>
+      <div class="panel-body"><table><thead><tr><th>Branch Naam</th><th>Address</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    </div>`;
+}
+
+/* =========================================================================
+   BRANCH
+   ========================================================================= */
+async function renderBranchDashboard(){
+  const c = document.getElementById('content');
+  c.innerHTML = `<div class="panel"><div class="panel-body">Dashboard load ho raha hai...</div></div>`;
+
+  const branchId = CURRENT_USER.branchId;
+  const [groupSnap, activeLoanSnap, todayCollSnap, monthLoanSnap, monthCollSnap] = await Promise.all([
+    db.collection('groups').where('branchId','==', branchId).get(),
+    db.collection('loans').where('branchId','==', branchId).where('status','==','active').get(),
+    db.collection('collections').where('branchId','==', branchId).where('date','==', todayStr()).get(),
+    db.collection('loans').where('branchId','==', branchId).where('createdDateStr','>=', monthStartStr()).get(),
+    db.collection('collections').where('branchId','==', branchId).where('date','>=', monthStartStr()).get()
+  ]);
+
+  const today = todayDayName();
+  const todaysGroupIds = new Set(groupSnap.docs.filter(g => g.data().collectionDay === today).map(g => g.id));
+
+  let outstanding = 0, todayRealizable = 0, overdueNo = 0, overdueAmt = 0;
+  const seenOverdueCustomers = new Set();
+  activeLoanSnap.forEach(doc=>{
+    const d = doc.data();
+    outstanding += (d.outstanding || 0);
+    if(todaysGroupIds.has(d.groupId)) todayRealizable += (d.emiAmt || 0);
+  });
+  let todayCollection = 0;
+  todayCollSnap.forEach(doc=>{
+    const d = doc.data();
+    todayCollection += (d.putAmt || 0);
+    if(d.type === 'overdue' && !seenOverdueCustomers.has(d.customerId)){
+      seenOverdueCustomers.add(d.customerId);
+      overdueNo++; overdueAmt += (d.putAmt || 0);
+    }
+  });
+  let monthlyPerformance = 0;
+  monthCollSnap.forEach(doc=> monthlyPerformance += (doc.data().putAmt || 0));
+
+  c.innerHTML = `
+    <div class="stat-row">
+      <div class="stat-card"><div class="label">Borrower</div><div class="val">${activeLoanSnap.size}</div></div>
+      <div class="stat-card"><div class="label">Outstanding</div><div class="val mono">₹${fmtAmt(outstanding)}</div></div>
+      <div class="stat-card"><div class="label">Today Realizable</div><div class="val mono">₹${fmtAmt(todayRealizable)}</div></div>
+      <div class="stat-card accent"><div class="label">Today Collection</div><div class="val mono">₹${fmtAmt(todayCollection)}</div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="label">Overdue No</div><div class="val">${overdueNo}</div></div>
+      <div class="stat-card"><div class="label">Overdue Amt</div><div class="val mono">₹${fmtAmt(overdueAmt)}</div></div>
+      <div class="stat-card"><div class="label">Loan No (Month)</div><div class="val">${monthLoanSnap.size}</div></div>
+      <div class="stat-card accent"><div class="label">Monthly Performance</div><div class="val mono">₹${fmtAmt(monthlyPerformance)}</div></div>
+    </div>
+    <div class="panel"><div class="panel-body">
+      Total Group: <strong>${groupSnap.size}</strong>. Aaj ka din: <strong>${today}</strong>.
+      Overdue No/Amt sirf aaj record ki gayi overdue entries par based hai — Reports module (Phase 3) me poora history dikhega.
+    </div></div>
+  `;
+}
+
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+
+// ---- Group ----
+async function renderBranchGroup(){
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h3>Group</h3><button class="btn-sm gold" onclick="openGroupForm()">+ Naya Group</button></div>
+      <div class="panel-body">
+        <table><thead><tr><th>Group Naam</th><th>Address</th><th>Collection Day</th></tr></thead>
+        <tbody id="groupTableBody"><tr class="empty-row"><td colspan="3">Load ho raha hai...</td></tr></tbody></table>
+      </div>
+    </div>`;
+  const snap = await db.collection('groups').where('branchId','==', CURRENT_USER.branchId).get();
+  if(snap.empty){
+    document.getElementById('groupTableBody').innerHTML = `<tr class="empty-row"><td colspan="3">Abhi tak koi group nahi bana.</td></tr>`;
+    return;
+  }
+  let rows = '';
+  snap.forEach(doc=>{
+    const d = doc.data();
+    rows += `<tr><td><strong>${esc(d.name)}</strong></td><td>${esc(d.address||'—')}</td><td>${esc(d.collectionDay)}</td></tr>`;
+  });
+  document.getElementById('groupTableBody').innerHTML = rows;
+}
+function openGroupForm(){
+  let dayOptions = '';
+  DAYS.forEach(d => dayOptions += `<option value="${d}">${d}</option>`);
+  openModal(`
+    <h3>Naya Group</h3>
+    <div class="field"><label>Group Naam</label><input id="gf_name"></div>
+    <div class="field"><label>Group Address</label><input id="gf_address"></div>
+    <div class="field"><label>Collection Day</label><select id="gf_day">${dayOptions}</select></div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn-sm gold" onclick="saveGroup()">Save</button>
+    </div>
+  `);
+}
+async function saveGroup(){
+  const name = document.getElementById('gf_name').value.trim();
+  const address = document.getElementById('gf_address').value.trim();
+  const collectionDay = document.getElementById('gf_day').value;
+  if(!name){ toast('Group naam dalein', true); return; }
+  try{
+    await db.collection('groups').add({
+      name, address, collectionDay, branchId: CURRENT_USER.branchId, createdAt: Date.now()
+    });
+    closeModal(); toast('Group ban gaya'); renderBranchGroup();
+  }catch(e){ toast(e.message, true); }
+}
+
+// ---- Customer ----
+async function renderBranchCustomer(){
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h3>Customer</h3><button class="btn-sm gold" onclick="openCustomerForm()">+ Naya Customer</button></div>
+      <div class="panel-body">
+        <table><thead><tr><th>Naam</th><th>Husband/Guardian</th><th>Phone</th><th>Group</th><th>Aadhaar</th></tr></thead>
+        <tbody id="custTableBody"><tr class="empty-row"><td colspan="5">Load ho raha hai...</td></tr></tbody></table>
+      </div>
+    </div>`;
+  const [custSnap, groupSnap] = await Promise.all([
+    db.collection('customers').where('branchId','==', CURRENT_USER.branchId).get(),
+    db.collection('groups').where('branchId','==', CURRENT_USER.branchId).get()
+  ]);
+  const groupMap = {}; groupSnap.forEach(d=> groupMap[d.id] = d.data().name);
+  if(custSnap.empty){
+    document.getElementById('custTableBody').innerHTML = `<tr class="empty-row"><td colspan="5">Abhi tak koi customer nahi bana.</td></tr>`;
+    return;
+  }
+  let rows = '';
+  custSnap.forEach(doc=>{
+    const d = doc.data();
+    rows += `<tr>
+      <td><strong>${esc(d.name)}</strong></td>
+      <td>${esc(d.husbandName||'—')}</td>
+      <td class="mono">${esc(d.phone)}</td>
+      <td>${esc(groupMap[d.groupId]||'—')}</td>
+      <td class="mono">${esc(d.aadhaar||'—')}</td>
+    </tr>`;
+  });
+  document.getElementById('custTableBody').innerHTML = rows;
+}
+async function openCustomerForm(){
+  const groupSnap = await db.collection('groups').where('branchId','==', CURRENT_USER.branchId).get();
+  if(groupSnap.empty){
+    toast('Pehle ek Group banayein, phir Customer add karein', true);
+    return;
+  }
+  let options = '<option value="">— Group Select Karein —</option>';
+  const groupDayMap = {};
+  groupSnap.forEach(doc=>{
+    groupDayMap[doc.id] = doc.data().collectionDay;
+    options += `<option value="${doc.id}">${esc(doc.data().name)}</option>`;
+  });
+  window._groupDayMap = groupDayMap;
+  openModal(`
+    <h3>Naya Customer</h3>
+    <div class="form-grid">
+      <div class="field full"><label>Group</label><select id="cf_group" onchange="customerGroupChanged()">${options}</select></div>
+      <div class="field full"><label>Collection Day (Autometic)</label><input id="cf_day" disabled></div>
+      <div class="field"><label>Customer Naam</label><input id="cf_name"></div>
+      <div class="field"><label>D.O.B</label><input type="date" id="cf_dob"></div>
+      <div class="field"><label>Phone Number (Mandatory)</label><input id="cf_phone"></div>
+      <div class="field"><label>Alt. Phone (Optional)</label><input id="cf_altphone"></div>
+      <div class="field full"><label>Address</label><input id="cf_address"></div>
+      <div class="field"><label>Aadhaar Number</label><input id="cf_aadhaar"></div>
+      <div class="field"><label>PAN Number</label><input id="cf_pan"></div>
+      <div class="field full"><label>Husband / Guardian Naam</label><input id="cf_husband"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn-sm gold" onclick="saveCustomer()">Save</button>
+    </div>
+  `);
+}
+function customerGroupChanged(){
+  const gid = document.getElementById('cf_group').value;
+  document.getElementById('cf_day').value = window._groupDayMap[gid] || '';
+}
+async function saveCustomer(){
+  const groupId = document.getElementById('cf_group').value;
+  const name = document.getElementById('cf_name').value.trim();
+  const dob = document.getElementById('cf_dob').value;
+  const phone = document.getElementById('cf_phone').value.trim();
+  const altPhone = document.getElementById('cf_altphone').value.trim();
+  const address = document.getElementById('cf_address').value.trim();
+  const aadhaar = document.getElementById('cf_aadhaar').value.trim();
+  const pan = document.getElementById('cf_pan').value.trim();
+  const husbandName = document.getElementById('cf_husband').value.trim();
+
+  if(!groupId){ toast('Group select karein', true); return; }
+  if(!name){ toast('Customer naam dalein', true); return; }
+  if(!phone){ toast('Phone number mandatory hai', true); return; }
+
+  try{
+    await db.collection('customers').add({
+      groupId, name, dob, phone, altPhone, address, aadhaar, pan, husbandName,
+      branchId: CURRENT_USER.branchId, createdAt: Date.now()
+    });
+    closeModal(); toast('Customer ban gaya'); renderBranchCustomer();
+  }catch(e){ toast(e.message, true); }
+}
+
+/* =========================================================================
+   LOAN — Create Loan & Loan Closer
+   ========================================================================= */
+let LOAN_MODE = 'create';
+
+function renderBranchLoan(){
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Loan</h3>
+        <div>
+          <button class="btn-outline" id="loanModeCreate" onclick="setLoanMode('create')" style="margin-right:8px;">Create Loan</button>
+          <button class="btn-outline" id="loanModeCloser" onclick="setLoanMode('closer')">Loan Closer</button>
+        </div>
+      </div>
+      <div class="panel-body" id="loanBody"></div>
+    </div>`;
+  setLoanMode(LOAN_MODE);
+}
+function setLoanMode(mode){
+  LOAN_MODE = mode;
+  document.getElementById('loanModeCreate').className = mode==='create' ? 'btn-sm gold' : 'btn-outline';
+  document.getElementById('loanModeCloser').className = mode==='closer' ? 'btn-sm gold' : 'btn-outline';
+  if(mode === 'create') renderLoanCreateSearch();
+  else renderLoanCloserSearch();
+}
+
+// ---- helper: find a customer in this branch by phone / aadhaar / pan ----
+async function findCustomerByAny(term){
+  const branchId = CURRENT_USER.branchId;
+  const fields = ['phone','aadhaar','pan'];
+  for(const f of fields){
+    const snap = await db.collection('customers').where('branchId','==',branchId).where(f,'==',term).limit(1).get();
+    if(!snap.empty) return { id: snap.docs[0].id, data: snap.docs[0].data() };
+  }
+  return null;
+}
+
+// ---- Create Loan ----
+function renderLoanCreateSearch(){
+  document.getElementById('loanBody').innerHTML = `
+    <div class="field"><label>Customer Search (Phone / Aadhaar / PAN)</label>
+      <input id="loanSearchTerm" placeholder="Number dalein aur search karein">
+    </div>
+    <button class="btn-sm gold" onclick="doLoanCreateSearch()">Search Customer</button>
+    <div id="loanCreateFormWrap" style="margin-top:18px;"></div>
+  `;
+}
+async function doLoanCreateSearch(){
+  const term = document.getElementById('loanSearchTerm').value.trim();
+  if(!term){ toast('Kuch dalke search karein', true); return; }
+  const found = await findCustomerByAny(term);
+  if(!found){ toast('Customer nahi mila', true); document.getElementById('loanCreateFormWrap').innerHTML=''; return; }
+  const groupSnap = await db.collection('groups').doc(found.data.groupId).get();
+  const group = groupSnap.exists ? groupSnap.data() : {name:'—', collectionDay:'—'};
+  renderLoanCreateForm(found, group);
+}
+function renderLoanCreateForm(customer, group){
+  const d = customer.data;
+  document.getElementById('loanCreateFormWrap').innerHTML = `
+    <div class="form-grid">
+      <div class="field"><label>Customer Naam</label><input value="${esc(d.name)}" disabled></div>
+      <div class="field"><label>D.O.B</label><input value="${esc(d.dob)}" disabled></div>
+      <div class="field"><label>Group</label><input value="${esc(group.name)}" disabled></div>
+      <div class="field"><label>Collection Day</label><input value="${esc(group.collectionDay)}" disabled></div>
+      <div class="field"><label>PH No</label><input value="${esc(d.phone)}" disabled></div>
+      <div class="field"><label>Aadhaar No</label><input value="${esc(d.aadhaar)}" disabled></div>
+      <div class="field"><label>PAN No</label><input value="${esc(d.pan)}" disabled></div>
+      <div class="field"><label>Loan Amt</label><input type="number" id="lf_loanAmt" oninput="loanAmtChanged()"></div>
+      <div class="field"><label>Interest Rate (Autometic)</label><input id="lf_interest" disabled></div>
+      <div class="field"><label>Emi Amt (Autometic)</label><input id="lf_emi" disabled></div>
+      <div class="field"><label>File Charge (Autometic)</label><input id="lf_filecharge" disabled></div>
+      <div class="field"><label>Customer Bank A/C No</label><input id="lf_bankacc"></div>
+      <div class="field"><label>IFSC Code</label><input id="lf_ifsc"></div>
+      <div class="field"><label>Co-Applicant Naam</label><input id="lf_coname"></div>
+      <div class="field"><label>Co-Applicant D.O.B</label><input type="date" id="lf_codob"></div>
+    </div>
+    <div class="helper">Interest Rate: ${LOAN_INTEREST_PCT}% flat &middot; Tenure: ${LOAN_TENURE_WEEKS} weekly EMI &middot; File Charge: ${LOAN_FILE_CHARGE_PCT}% — inhe FIRESTORE ke config constants se badla ja sakta hai.</div>
+    <button class="btn-sm gold" style="margin-top:14px;" onclick="saveLoan('${customer.id}', '${d.groupId}')">Loan Create Karein</button>
+  `;
+  window._loanCustomer = customer;
+}
+function loanAmtChanged(){
+  const amt = parseFloat(document.getElementById('lf_loanAmt').value) || 0;
+  const t = computeLoanTerms(amt);
+  document.getElementById('lf_interest').value = LOAN_INTEREST_PCT + '% (₹' + fmtAmt(t.interest) + ')';
+  document.getElementById('lf_emi').value = '₹' + fmtAmt(t.emiAmt);
+  document.getElementById('lf_filecharge').value = '₹' + fmtAmt(t.fileCharge);
+}
+async function saveLoan(customerId, groupId){
+  const d = window._loanCustomer.data;
+  const loanAmt = parseFloat(document.getElementById('lf_loanAmt').value) || 0;
+  if(loanAmt <= 0){ toast('Loan Amt sahi se dalein', true); return; }
+  const t = computeLoanTerms(loanAmt);
+  const bankAccNo = document.getElementById('lf_bankacc').value.trim();
+  const ifsc = document.getElementById('lf_ifsc').value.trim();
+  const coApplicantName = document.getElementById('lf_coname').value.trim();
+  const coApplicantDob = document.getElementById('lf_codob').value;
+  try{
+    await db.collection('loans').add({
+      customerId, groupId, branchId: CURRENT_USER.branchId,
+      customerName: d.name, customerDob: d.dob, phone: d.phone, aadhaar: d.aadhaar, pan: d.pan, husbandName: d.husbandName||'',
+      loanAmt, interestRate: LOAN_INTEREST_PCT, interestAmt: t.interest, emiAmt: t.emiAmt, fileCharge: t.fileCharge,
+      tenureWeeks: t.tenureWeeks, outstanding: t.totalPayable,
+      bankAccNo, ifsc, coApplicantName, coApplicantDob,
+      status: 'active', disbDate: todayStr(), createdDateStr: todayStr(), createdAt: Date.now()
+    });
+    toast('Loan ban gaya!');
+    renderLoanCreateSearch();
+  }catch(e){ toast(e.message, true); }
+}
+
+// ---- Loan Closer ----
+function renderLoanCloserSearch(){
+  document.getElementById('loanBody').innerHTML = `
+    <div class="field"><label>Customer Search (Phone / Aadhaar / PAN)</label>
+      <input id="closerSearchTerm" placeholder="Number dalein aur search karein">
+    </div>
+    <button class="btn-sm gold" onclick="doLoanCloserSearch()">Search Customer</button>
+    <div id="loanCloserFormWrap" style="margin-top:18px;"></div>
+  `;
+}
+async function doLoanCloserSearch(){
+  const term = document.getElementById('closerSearchTerm').value.trim();
+  if(!term){ toast('Kuch dalke search karein', true); return; }
+  const found = await findCustomerByAny(term);
+  if(!found){ toast('Customer nahi mila', true); document.getElementById('loanCloserFormWrap').innerHTML=''; return; }
+  const loanSnap = await db.collection('loans')
+    .where('branchId','==', CURRENT_USER.branchId)
+    .where('customerId','==', found.id)
+    .where('status','==','active').limit(1).get();
+  if(loanSnap.empty){
+    toast('Is customer ka koi active loan nahi mila', true);
+    document.getElementById('loanCloserFormWrap').innerHTML = '';
+    return;
+  }
+  const loanDoc = loanSnap.docs[0];
+  document.getElementById('loanCloserFormWrap').innerHTML = `
+    <div class="form-grid">
+      <div class="field"><label>Customer Naam</label><input value="${esc(loanDoc.data().customerName)}" disabled></div>
+      <div class="field"><label>Outstanding</label><input value="₹${fmtAmt(loanDoc.data().outstanding)}" disabled></div>
+      <div class="field full"><label>Put Amt</label><input type="number" id="closer_putamt"></div>
+    </div>
+    <button class="btn-sm gold" style="margin-top:14px;" onclick="saveLoanCloser('${loanDoc.id}')">Submit</button>
+  `;
+}
+async function saveLoanCloser(loanId){
+  const putAmt = parseFloat(document.getElementById('closer_putamt').value) || 0;
+  if(putAmt <= 0){ toast('Put Amt sahi se dalein', true); return; }
+  try{
+    const loanRef = db.collection('loans').doc(loanId);
+    const loanDoc = await loanRef.get();
+    const d = loanDoc.data();
+    const newOutstanding = Math.max(0, (d.outstanding||0) - putAmt);
+    const batch = db.batch();
+    batch.update(loanRef, { outstanding: newOutstanding, status: newOutstanding <= 0 ? 'closed' : 'active' });
+    const collRef = db.collection('collections').doc();
+    batch.set(collRef, {
+      loanId, customerId: d.customerId, groupId: d.groupId, branchId: CURRENT_USER.branchId,
+      date: todayStr(), type: 'loanclosure', emiAmt: d.emiAmt||0, putAmt, createdAt: Date.now()
+    });
+    await batch.commit();
+    toast(newOutstanding <= 0 ? 'Loan poora band ho gaya!' : 'Payment record ho gaya, balance update ho gaya');
+    renderLoanCloserSearch();
+  }catch(e){ toast(e.message, true); }
+}
+
+/* =========================================================================
+   COLLECTION — Realizable / Advance / Overdue
+   ========================================================================= */
+let COLLECTION_TYPE = null;
+
+function renderBranchCollection(){
+  const c = document.getElementById('content');
+  c.innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h3>Collection</h3></div>
+      <div class="panel-body">
+        <button class="btn-outline" id="collBtn-realizable" onclick="selectCollectionType('realizable')" style="margin-right:8px;">Realizable</button>
+        <button class="btn-outline" id="collBtn-advance" onclick="selectCollectionType('advance')" style="margin-right:8px;">Advance</button>
+        <button class="btn-outline" id="collBtn-overdue" onclick="selectCollectionType('overdue')">Overdue</button>
+        <div id="collectionArea" style="margin-top:18px;"></div>
+      </div>
+    </div>`;
+}
+async function selectCollectionType(type){
+  COLLECTION_TYPE = type;
+  ['realizable','advance','overdue'].forEach(t=>{
+    document.getElementById('collBtn-'+t).className = (t===type) ? 'btn-sm gold' : 'btn-outline';
+  });
+  const area = document.getElementById('collectionArea');
+  area.innerHTML = 'Groups load ho rahe hain...';
+
+  const groupSnap = await db.collection('groups').where('branchId','==', CURRENT_USER.branchId).get();
+  const today = todayDayName();
+  let groups = groupSnap.docs.map(d => ({id:d.id, ...d.data()}));
+  if(type === 'realizable') groups = groups.filter(g => g.collectionDay === today);
+  else if(type === 'advance') groups = groups.filter(g => g.collectionDay !== today);
+  // overdue: all groups, no filter
+
+  if(groups.length === 0){
+    area.innerHTML = `<div class="empty-row" style="padding:20px;color:var(--text-dim);">
+      ${type === 'realizable' ? 'Aaj (' + today + ') ke liye koi group schedule nahi hai.' : 'Koi group nahi mila.'}
+    </div>`;
+    return;
+  }
+  let options = '<option value="">— Group Select Karein —</option>';
+  groups.forEach(g => options += `<option value="${g.id}">${esc(g.name)} (${esc(g.collectionDay)})</option>`);
+  area.innerHTML = `
+    <div class="field"><label>Group</label><select id="collGroupSelect" onchange="loadCollectionCustomers()">${options}</select></div>
+    <div id="collectionTableWrap" style="margin-top:16px;"></div>
+  `;
+}
+async function loadCollectionCustomers(){
+  const groupId = document.getElementById('collGroupSelect').value;
+  const wrap = document.getElementById('collectionTableWrap');
+  if(!groupId){ wrap.innerHTML = ''; return; }
+  wrap.innerHTML = 'Customers load ho rahe hain...';
+  const loanSnap = await db.collection('loans')
+    .where('branchId','==', CURRENT_USER.branchId)
+    .where('groupId','==', groupId)
+    .where('status','==','active').get();
+  if(loanSnap.empty){
+    wrap.innerHTML = `<div class="empty-row" style="padding:20px;color:var(--text-dim);">Is group me koi active loan nahi hai.</div>`;
+    return;
+  }
+  const groupDoc = await db.collection('groups').doc(groupId).get();
+  const groupData = groupDoc.data();
+  let rows = '';
+  let sl = 1;
+  loanSnap.forEach(doc=>{
+    const d = doc.data();
+    rows += `<tr data-loanid="${doc.id}" data-emiamt="${d.emiAmt||0}">
+      <td>${sl++}</td>
+      <td>${esc(groupData.name)}</td>
+      <td>${esc(groupData.collectionDay)}</td>
+      <td><strong>${esc(d.customerName)}</strong></td>
+      <td>${esc(d.husbandName||'—')}</td>
+      <td class="mono">${esc(d.phone)}</td>
+      <td>${esc(d.disbDate)}</td>
+      <td class="mono">₹${fmtAmt(d.loanAmt)}</td>
+      <td class="mono">₹${fmtAmt(d.outstanding)}</td>
+      <td>${d.tenureWeeks}</td>
+      <td class="mono">₹${fmtAmt(d.emiAmt)}</td>
+      <td><input type="number" class="put-amt-input" style="width:90px;padding:6px;border:1px solid var(--line);border-radius:6px;" oninput="updateCollectionTotals()"></td>
+    </tr>`;
+  });
+  wrap.innerHTML = `
+    <table>
+      <thead><tr><th>Sl</th><th>Group</th><th>Day</th><th>Customer</th><th>Husband</th><th>PH No</th><th>Disb Date</th><th>Loan Amt</th><th>Outstanding</th><th>Emi No</th><th>Emi Amt</th><th>Put Amt</th></tr></thead>
+      <tbody id="collRowsBody">${rows}</tbody>
+    </table>
+    <div style="margin-top:14px;display:flex;gap:26px;font-size:13.5px;">
+      <div>${COLLECTION_TYPE === 'realizable' ? 'Realizable Amt' : COLLECTION_TYPE === 'advance' ? 'Advance Amt' : 'Overdue Amt'}: <strong id="collSumEmi" class="mono">₹0</strong></div>
+      <div>${COLLECTION_TYPE === 'realizable' ? 'Realized Amt' : 'Collected Amt'}: <strong id="collSumPut" class="mono">₹0</strong></div>
+    </div>
+    <button class="btn-sm gold" style="margin-top:14px;" onclick="submitCollection('${groupId}')">Submit</button>
+  `;
+  updateCollectionTotals();
+}
+function updateCollectionTotals(){
+  let sumEmi = 0, sumPut = 0;
+  document.querySelectorAll('#collRowsBody tr').forEach(tr=>{
+    sumEmi += parseFloat(tr.dataset.emiamt) || 0;
+    const inp = tr.querySelector('.put-amt-input');
+    sumPut += parseFloat(inp.value) || 0;
+  });
+  document.getElementById('collSumEmi').textContent = '₹' + fmtAmt(sumEmi);
+  document.getElementById('collSumPut').textContent = '₹' + fmtAmt(sumPut);
+}
+async function submitCollection(groupId){
+  const rows = document.querySelectorAll('#collRowsBody tr');
+  const batch = db.batch();
+  let count = 0;
+  for(const tr of rows){
+    const putAmt = parseFloat(tr.querySelector('.put-amt-input').value) || 0;
+    if(putAmt <= 0) continue;
+    const loanId = tr.dataset.loanid;
+    const loanRef = db.collection('loans').doc(loanId);
+    const loanDoc = await loanRef.get();
+    const d = loanDoc.data();
+    const newOutstanding = Math.max(0, (d.outstanding||0) - putAmt);
+    batch.update(loanRef, { outstanding: newOutstanding, status: newOutstanding <= 0 ? 'closed' : 'active' });
+    const collRef = db.collection('collections').doc();
+    batch.set(collRef, {
+      loanId, customerId: d.customerId, groupId, branchId: CURRENT_USER.branchId,
+      date: todayStr(), type: COLLECTION_TYPE, emiAmt: d.emiAmt||0, putAmt, createdAt: Date.now()
+    });
+    count++;
+  }
+  if(count === 0){ toast('Kam se kam ek customer ka Put Amt bharein', true); return; }
+  try{
+    await batch.commit();
+    toast(count + ' customer(s) ki entry save ho gayi');
+    loadCollectionCustomers();
+  }catch(e){ toast(e.message, true); }
+}
+</script>
+</body>
+</html>
